@@ -1,0 +1,20 @@
+{
+  "name": "package-test-jsontools",
+  "version": "1.0.0",
+  "description": "Usage Test for package @com_kautiainen_antti/jsontools",
+  "main": "test.js",
+  "scripts": {
+    "test": "node test.js",
+    "pretest": "npm i @com_kautiainen_antti/jsontools"
+  },
+  "type": "module",
+  "keywords": [
+    "@com.kautiainen.antti/jsontools"
+  ],
+  "author": "Antti Kautiainenn <antti@kautiainen.com>",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "run-script-os": "^1.1.6"
+  }
+}
