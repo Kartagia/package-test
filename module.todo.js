@@ -1,6 +1,6 @@
 
 /**
- * Module storing ToDoData emtries.
+ * Module storing ToDoData entries.
  */
 
 /**
