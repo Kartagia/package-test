@@ -1,0 +1,12 @@
+[
+  {
+    "title": "Päivitä CV",
+    "target": ["Koulutus", "Mäkipää"],
+    "description": "Muuta Mäkipään kokemus IT alan CVhen.",
+    "steps": [
+  "Muuta kuvaus perheyritykseksi",
+  "Muuta kuvaus hallinnoksi myös siivoustyöllä"
+      ],
+    "status": []
+  }
+]
