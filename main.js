@@ -32,16 +32,91 @@ const getDataDummy = () => {
  */
 const todoEntries = new Map();
 
+/**
+ * Create a change handler for a ToDoElement.
+ * @param {TodoEntry} entry - The listened entry.
+ * @param {Storage} storage - The entry data storage.
+ * @returns {EventListener} Event listener listen7ng change events.
+ */
+const createChangeHandler = (todoEntry, storage) => {
+  const id = todoEntry.id;
+  (e) => {
+  console.group(`Event Handling[${e.target.id}] for TODO[${id}]`)
+  const todoData = getToDo(id, storage) || {};
+  console.table(todoData);
+  const stepIds = todoData.steps;
+  if (e.target.id === todoData.inputId) {
+    // The main entry is clicked.
 
+    console.group("Updating steps")
+    // Set state of steps
+    if (stepIds) {
+      // We do have steps.
+      let count = 0;
+      const newChecked = e.tqrget.checked;
+      stepIds.forEach(
+        (stepId, index) => {
+          const stepData = getToDo(stepId);
+          console.debug(`Handling step[${stepId}]`)
+          if (stepData && stepData.inputId) {
+            console.table(stepData);
+            const stepInput = document.getElementById(stepData.inputId);
+            if (stepInput && (stepInput.checked != newChecked || stepInput.indeterminate)) {
+              stepInput.indeterminate = false;
+              stepInput.checked = newChecked;
+              console.debug(`Step Input set ${newChecked}`)
+            } else {
+              console.debug('Step state is correct');
+            }
+          } else if (stepData) {
+            console.error("Step without input");
+          } else {
+            console.error("Orphan entry");
+          }
+          console.groupEnd();
+        }
+      )
+      console.debug(`Steps ${e.target.checked ? 'Checked':"Unchecked"}`);
+    }
+    console.groupEnd();
+  } else if (stepIds.length > 0) {
+    // One of the children is clicked.
+    console.debug(`Handling change of ${e.target.id} for ${id}`)
+    const stepInputIds = stepIds.map(getToDo).map((entry) => (entry && entry.inputId ? getToDo(entry.inputId, storage) : null));
+    const count = stepIds.reduce((result, id) => {
+      if (id == null || id.checked) {
+        return result + 1;
+      }
+      return result;
+    }, 0);
+    input.checked = count === stepIds.length;
+    input.indeterminate = count > 0 && count < stepIds.length;
+  } else {
+    console.debug(`Event effecting id ${event.target.id} not ${todoData.input} or in [${todoData.steps.map(getToDo).filter((value) => (value != null)).mqp((entry) => (entry.inputId)).join(",")}]`);
+  }
+  const idInput = document.getElementById(todoData.inpuId);
+  console.debug(`Input[${(idInput ? idInput.id : "")}] of [${todoDqta.id}] is ${(idInput ? (idInput.checked?"checked":"unchecked").append(idInput.indeterminate ? "(indeterminate)":"") : "undefined")}`)
+};
+}
+
+/**
+ * Create entry UI element.
+ * @param {TodoEntry} entry The entry whose element is created.
+ * @param {string|number|undefined} index The index of the entry in parent structure.
+ * @param {string} prefix - The identifier prefix.
+ * @param {Storage} storage - The ToDoRntry storage.
+ */
 function entryElement(entry, index, prefix, storage) {
   const element = document.createElement("li");
-
+  // Create the entry data.
   const newEntry = createTodoEntry(entry, index, prefix, storage);
   const id = newEntry.id;
   console.group(`Creating element for ToDo[${id}]:${entry}`);
   console.table(newEntry);
   addToDo(id, newEntry);
   element.setAttribute("id", id);
+  
+  // Create input for the entry
   const input = document.createElement("input");
   input.type = "checkbox";
   input.id = newEntry.inputId;
@@ -51,71 +126,21 @@ function entryElement(entry, index, prefix, storage) {
     ["name", "value", "type"].map((field) => (`${field}="${input[field]}"`)).join(",")
     
   }]`);
+  // Creste input label
   const label = document.createElement("label");
   label.setAttribute("for", newEntry.inputId);
-  
+  // Add change handler to the entrt
   const changeHandler = (e) => {
-    console.group(`Event Handling[${e.target.id}] for TODO[${id}]`)
-    const todoData = getToDo(id, storage) || {};
-    console.table(todoData);
-    const stepIds = todoData.steps;
-    if (e.target.id === todoData.inpuId) {
-      // The main entry is clicked.
-      
-      console.group("Updating steps")
-      // Set state of steps
-      if (stepIds) {
-        // We do have steps.
-        let count = 0;
-        const newChecked = e.tqrget.checked;
-        stepIds.forEach(
-          (stepId, index) => {
-            const stepData = getToDo(stepId);
-            console.debug(`Handling step[${stepId}]`)
-            if (stepData && stepData.inpuId) {
-            console.table(stepData);
-            const stepInput = document.getElementById(stepData.inputId);
-              if (stepInput && (stepInput.checked != newChecked || stepInput.indeterminate) ) {
-                stepInput.indeterminate = false;
-                stepInput.checked = newChecked;
-                console.debug(`Step Input set ${newChecked}`)
-              } else {
-                console.debug('Step state is correct');
-              }
-            } else if (stepData) {
-              console.debug("Step without input");
-            } else {
-              console.debug("Orphan entry");
-            }
-            console.groupEnd();
-          }
-        )
-        console.debug(`Steps ${e.target.checked ? 'Checked':"Unchecked"}`);
-      }
-      console.groupEnd();
-    } else if (stepIds.length > 0) {
-      // One of the children is clicked.
-      console.debug(`Handling change of ${e.target.id} for ${id}`)
-      const stepInputIds = stepIds.map(getToDo).map((entry) => (entry && entry.inputId ? getToDo(entry.inputId, storage) : null));
-      const count = stepIds.reduce((result, id) => {
-        if (id == null || id.checked) {
-          return result+1;
-        }
-        return result;
-      }, 0);
-      input.checked = count === stepIds.length;
-      input.indeterminate = count > 0 && count < stepIds.length;
-    } else {
-      console.debug(`Event effecting id ${event.target.id} not ${todoData.input} or in [${todoData.steps.map(getToDo).filter((value) => (value != null)).mqp((entry) => (entry.inputId)).join(",")}]`);
-    }
-    const idInput = document.getElementById(todoData.inpuId);
-    console.debug(`Input[${(idInput ? idInput.id : "")}] of [${todoDqta.id}] is ${(idInput ? (idInput.checked?"checked":"unchecked").append(idInput.indeterminate ? "(indeterminate)":"") : "undefined")}`)
-  };
-  input.addEventListener("change", changeHandler);
-
+    // TODO: Replace this with call to createChangeHandler
+    console.group(`Event Handling[${e.target.id}] for TODO[${id}]`);
+    console.debug(`Event not handled`);
+    console.groupEnd();
+  }
+  
   switch (typeof entry) {
     case "object":
-      label.textContent = label.appendChild(document.createTextNode(entry.title));
+      console.debug(`ToDoData[${entry.title}]:${entry.description}`);
+      label.appendChild(document.createTextNode(entry.title));
       const content = document.createElement("ul");
       content.appendChild(label);
       if (entry.steps && entry.steps.length) {
@@ -123,28 +148,33 @@ function entryElement(entry, index, prefix, storage) {
         newEntry.steps.forEach(
           (step, index) => {
             const uiEntry = getToDo(step);
+            console.debug(`Step#${index}[${step}]:`)
+            console.table(uiEntry);
             const child = entryElement(
-              uiEntry.entry, index, prefix, storage);
+              uiEntry.entry, index, `${prefix}.step`, storage);
             content.appendChild(child);
-            child.addEventListener("change", changeHandler);
           }
         );
         console.groupEnd();
 
         
       } else {
-        input.addEventListener("change", (e) => {
-          entry.completed = !(entry.completed);
-        })
+        // Removed invalid listener
+        console.group("No steps")
+        console.groupsend();
       }
       element.appendChild(label);
       element.appendChild(content);
       break;
     case "string":
+      console.log(`String entry: ${entry}`);
       label.appendChild(document.createTextNode(entry));
     default:
       element.appendChild(label);
   }
+  
+  // Add the event listener.
+  input.addEventListener("change", changeHandler);
   console.groupEnd();
   return element;
 }

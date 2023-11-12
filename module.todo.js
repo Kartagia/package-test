@@ -221,9 +221,13 @@ export function createEntryId(entry, index, prefix) {
 export function createTodoEntry(entry, index, prefix = "", storage=null) {
   console.group(`CreateEntry(${entry}, ${index}, ${prefix})`)
   const id = createEntryId(entry, index, prefix);
+  console.debug(`Entry[${entry instanceof Object? entry.id :""}] Id:${id}`);
   const steps = (entry instanceof Object && entry.steps instanceof Array ? entry.steps : []).map((step, index) => {
     const stepUiEntry = createTodoEntry(step, index, `${id}.step`, storage);
-    if ((step instanceof Object && step.id ? step.id :`${id}.step_${index}`) != stepUiEntry.id) console.error(`Id mismatch: id[] step ${index} with id step#${index}[${step instanceof Object && step.id? step.id : `${id}.step_${index}`}]`);
+    if ((step instanceof Object && step.id ? step.id :`${id}.step_${index}`) != stepUiEntry.id) {
+      // Refactor: Clarify failed id value body
+      console.error(`Id mismatch: id[] step ${index} with id step#${index}[${step instanceof Object && step.id? step.id : `${id}.step_${index}`}]`);
+    }
     addToDo(stepUiEntry.id, stepUiEntry, storage);
     return stepUiEntry.id;
   });
